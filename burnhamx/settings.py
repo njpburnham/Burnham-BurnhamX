@@ -1,4 +1,5 @@
 # Django settings for burnhamx project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -9,17 +10,30 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+    if "staging" in os.environ['CURRENT_VERSION_ID']:
+        host = '/cloudsql/cbo2it:cbo2itstaging'
+    else:
+        host = '/cloudsql/cbo2it:cbo2it'
+    # Running on production App Engine, so use a Google Cloud SQL database.
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': host,
+            'NAME': 'cbo2it',
+            'USER': 'root',
+        }
     }
-}
-
+else:
+    # Running in development, so use my local MySQL database.
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'burnhamx',
+            'USER': 'root',
+            'PASSWORD': '',
+        }
+    }
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.4/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
@@ -60,7 +74,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = 'static'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -110,7 +124,17 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    "templates/"
 )
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
+
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -123,6 +147,9 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    "extension",
+    "rest_framework",
+    "markdown",
 )
 
 # A sample logging configuration. The only tangible logging
