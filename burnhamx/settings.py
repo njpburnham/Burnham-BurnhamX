@@ -131,8 +131,23 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 1
+
+}
+
+SWAGGER_SETTINGS = {
+    'exclude_namespaces': [],
+    'api_version': '1.0.0',
+    'api_path': '/',
+    'enabled_methods': ['get','post'],
+    'api_key': '',
+    'is_authenticated': True,
+    'is_superuser': False,
+    'permission_denied_handler': None,
+    'doc_expansion': 'none',
 }
 
 
@@ -149,7 +164,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     "extension",
     "rest_framework",
-    "markdown",
+    "rest_framework_swagger",
 )
 
 # A sample logging configuration. The only tangible logging

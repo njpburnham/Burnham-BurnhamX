@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from api.serializers import UserSerializer, GroupSerializer
+from api.serializers import UserSerializer, GroupSerializer, CustomerSerializer
+from extension.models import Customer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -17,3 +18,13 @@ class GroupViewSet(viewsets.ModelViewSet):
     """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    """
+    Customers
+    """
+
+    serializer_class = CustomerSerializer
+    queryset = Customer.objects.all()
+
+

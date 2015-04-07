@@ -9,6 +9,7 @@ from api import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
+router.register(r'customers', views.CustomerViewSet)
 
 urlpatterns = patterns('',
     # Examples:
@@ -22,6 +23,7 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
     url(r'^', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'', include('extension.urls')),    
+    url(r'^docs/', include('rest_framework_swagger.urls')),
+    url(r'/', include('extension.urls')),    
 
 )
