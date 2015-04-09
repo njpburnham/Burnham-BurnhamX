@@ -128,13 +128,14 @@ TEMPLATE_DIRS = (
 )
 
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated'
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 1
+    'PAGE_SIZE': 100,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    )
 
 }
 
@@ -165,6 +166,8 @@ INSTALLED_APPS = (
     "extension",
     "rest_framework",
     "rest_framework_swagger",
+    "rest_framework.authtoken",
+
 )
 
 # A sample logging configuration. The only tangible logging
