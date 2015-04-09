@@ -1,14 +1,19 @@
 from django.conf.urls import patterns, include, url
 from rest_framework import routers
+from rest_framework_bulk.routes import BulkRouter
 from api import views as api_views
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
 
-router = routers.DefaultRouter()
+# router = routers.DefaultRouter()
+router = BulkRouter()
 router.register(r'opportunity', api_views.OpportunityViewSet)
 router.register(r'association', api_views.AssociationViewSet)
+
+
+
 
 urlpatterns = patterns('',
     # Examples:
