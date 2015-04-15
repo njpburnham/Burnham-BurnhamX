@@ -13,6 +13,12 @@ class AssociationViewSet(BulkModelViewSet):
     queryset = Association.objects.all()
     serializer_class = AssociationSerializer
 
+    def get_queryset(self):
+      queryset = Association.objects.all()
+      thread_id = self.request.QUERY_PARAMS.get("thread_id", None)
+      if thread_id:
+        queryset = queryset.filter(thread_id=thread_id)
+      return queryset
 
 
 #d0de5a3282b98955e158911efef5a8c16ec81607
