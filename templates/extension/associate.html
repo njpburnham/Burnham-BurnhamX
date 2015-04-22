@@ -1,0 +1,38 @@
+{% extends "extension/index.html" %} 
+
+{% block script %}
+  {{ block.super }}
+  <script type="text/javascript">
+  $(document).ready( function() {
+      $('#opps').selectize();
+  });
+    
+  </script>
+{% endblock %}
+
+
+
+{% block body %}
+<div class='container'>
+  <h3>BurnhamX</h3>
+  <h4>Choose an opportunity to associate an email</h4>
+  <div>
+    <form name='/extension/associate/{{ thread_id }}' method='post' class='form-horizontal'>
+      {% csrf_token %}
+      
+      <div class='form-group'>
+        <label for='opp' class='control-label col-md-1'>Opportunities</label>
+        <div class='col-md-5'>
+          <select id='opps' name='opp' class='form-control'>
+            {% for opp in opps %}
+              <option value="{{ opp.id }}">{{ opp.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    
+      <button type='submit' class='btn btn-primary'>Associate</button>
+    </form>
+  </div>
+  </div>
+{% endblock %}

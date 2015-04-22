@@ -1,6 +1,8 @@
 from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('extension.views',   
-    url(r'$', 'hello')
+    url(r'/thanks', 'thanks'),
+    url(r'/associate/(?P<thread_id>\w+)/$', 'associate'),
+
 
 )  
