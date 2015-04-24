@@ -18,6 +18,9 @@ class Opportunity(models.Model):
   class Meta:
     ordering = ('create_date',)
 
+  def __unicode__(self):
+    return self.name
+
 class Association(models.Model):
   """
   This model holds information about the association of an OPTY to an Email

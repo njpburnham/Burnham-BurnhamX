@@ -28,6 +28,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             type: "GET",
             success: function(data) {
                 if (data.count >= 1) {
+                    console.log(data);
                     addImageToThread(threadRowView)
                 }
             }
@@ -50,8 +51,6 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             var myWindow = window.open("https://burnham-x.appspot.com/extension/bulkassociate/"+ send_to_api +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
             },
     });
-
-
 
 
     sdk.Toolbars.registerToolbarButtonForThreadView(

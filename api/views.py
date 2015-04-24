@@ -6,7 +6,7 @@ from rest_framework_bulk import BulkListSerializer, BulkSerializerMixin, ListBul
 class OpportunityViewSet(BulkModelViewSet):
     queryset = Opportunity.objects.all()
     serializer_class = OpportunitySerializer
-
+    
 
 
 class AssociationViewSet(BulkModelViewSet):
