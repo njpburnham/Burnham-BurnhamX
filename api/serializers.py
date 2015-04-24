@@ -9,7 +9,7 @@ class OpportunitySerializer(BulkSerializerMixin, serializers.ModelSerializer):
     list_serializer_class = BulkListSerializer
     many = True
     depth = 1
-    fields = ("name","status","street","city","state","zip_code","siebel_id","create_date","modified_date",)
+    fields = ("name","status","street","city","state","zip_code","siebel_id","create_date","modified_date","id")
 
 
 class AssociationSerializer(BulkSerializerMixin, serializers.ModelSerializer):

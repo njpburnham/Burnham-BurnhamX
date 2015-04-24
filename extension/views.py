@@ -21,8 +21,9 @@ def associate(request, thread_id):
   else:
     variables = {}
     curr_opp = Opportunity.objects.get(pk=request.POST['opp'])
-    
     # Just a single association
+    
+    association = Association()
     association.thread_id = thread_id
     association.email_id = "" #TODO
     association.opportunity = curr_opp

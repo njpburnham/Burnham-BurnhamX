@@ -73,12 +73,14 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             url: url,
             type: "GET",
             success: function(data) { //
+                console.log(data);
                 if (data.count >= 1) {
                     $.ajax({
-                        console.log(data);
-                        url: "https://burnham-x.appspot.com/opportunity/" + data.results[0].opportunity + "/",
+                        
+                        url: "https://burnham-x.appspot.com/opportunity/" + data.results[0].opportunity.id + "/",
                         type: "GET",
                         success: function(oppData) {
+                            console.log(oppData);
                             addAssociatedSideBar(threadView, oppData);
                         }
                     });
