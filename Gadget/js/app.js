@@ -28,7 +28,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             type: "GET",
             success: function(data) {
                 if (data.count >= 1) {
-                    addImageToThread(threadRowView)
+                    addImageToThread(threadRowView, data.results[0].opportunity.name)
                 }
             }
         });
@@ -52,8 +52,6 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
     });
 
 
-
-
     sdk.Toolbars.registerToolbarButtonForThreadView(
     {
             title:"ASSOCIATE",
@@ -61,7 +59,6 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             section: "METADATA_STATE",
             onClick: function (event) {
                 thread_id = event.threadView.getThreadID();
-                console.log(thread_id);
                 var myWindow = window.open("https://burnham-x.appspot.com/extension/associate/"+ thread_id +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
             },
         });
@@ -78,6 +75,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             success: function(data) { //
                 if (data.count >= 1) {
                     $.ajax({
+                        console.log(data);
                         url: "https://burnham-x.appspot.com/opportunity/" + data.results[0].opportunity + "/",
                         type: "GET",
                         success: function(oppData) {
@@ -117,10 +115,10 @@ function addNewAssociationSideBar(threadView)
 
 
 
-function addImageToThread(threadRowView) {
+function addImageToThread(threadRowView, name) {
     threadRowView.addImage({
         imageUrl: chrome.runtime.getURL("images/BEye.png"),
-        tooltip: "Associated",
+        tooltip: name,
     });
 }
 

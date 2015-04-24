@@ -8,14 +8,20 @@ class OpportunitySerializer(BulkSerializerMixin, serializers.ModelSerializer):
     model = Opportunity
     list_serializer_class = BulkListSerializer
     many = True
-
-
+    depth = 1
+    fields = ("name","status","street","city","state","zip_code","siebel_id","create_date","modified_date",)
 
 
 class AssociationSerializer(BulkSerializerMixin, serializers.ModelSerializer):
+  opportunity = OpportunitySerializer()
+  
   class Meta:
     model = Association
     list_serializer_class = BulkListSerializer
+
+    
+    
+    
 
     
 
