@@ -1,6 +1,6 @@
 var sidebarForThread = new WeakMap(); //A Map is an arbitrary value for the value
 var sidebarTemplatePromise = null;
-
+var LOGOURL = "https://burnham-x.appspot.com/static/images/BEye.png"
 InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
 
 
@@ -37,7 +37,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
     sdk.Toolbars.registerToolbarButtonForThreadView(
     {
             title:"ASSOCIATE",
-            iconUrl: 'http://burnhameye.burnhamnationwide.com/_/rsrc/1379595100775/home/iPhone_BurnhamEye.png.1379595099180.png',
+            iconUrl: LOGOURL,
             section: "METADATA_STATE",
             onClick: function (event) {
                 thread_id = event.threadView.getThreadID();
@@ -88,7 +88,7 @@ function addNewAssociationSideBar(threadView)
             iconUrl: chrome.runtime.getURL('images/BEye.png')
         });
     }
-    var source = '<div class="column"><h3>Not Associated</h3></div>';
+    var source = '<div class="column"><h3>Not Associated</h3>Click the <img src="' +  LOGOURL +'"> icon on the navigation bar to associate</div>';
     var template = Handlebars.compile(source);
     var context = {};
     var html = template(context);
