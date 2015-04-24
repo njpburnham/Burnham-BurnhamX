@@ -29,7 +29,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             success: function(data) {
                 if (data.count >= 1) {
                     console.log(data);
-                    addImageToThread(threadRowView)
+                    addImageToThread(threadRowView, data.results[0].opportunity.name)
                 }
             }
         });
@@ -116,10 +116,10 @@ function addNewAssociationSideBar(threadView)
 
 
 
-function addImageToThread(threadRowView) {
+function addImageToThread(threadRowView, name) {
     threadRowView.addImage({
         imageUrl: chrome.runtime.getURL("images/BEye.png"),
-        tooltip: "Associated",
+        tooltip: name,
     });
 }
 
