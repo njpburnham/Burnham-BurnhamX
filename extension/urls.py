@@ -3,6 +3,7 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns('extension.views',   
     url(r'/thanks', 'thanks'),
     url(r'/associate/(?P<thread_id>\w+)/$', 'associate'),
+    url(r'/bulkassociate/(?P<thread_ids>\w+)/$', 'bulk_associate'),
 
 
 )  

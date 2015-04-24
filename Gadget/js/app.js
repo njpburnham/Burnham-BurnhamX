@@ -35,17 +35,20 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
     });
 
     sdk.Toolbars.registerToolbarButtonForList({
-         title:"ASSOCIATE",
-            iconUrl: 'http://burnhameye.burnhamnationwide.com/_/rsrc/1379595100775/home/iPhone_BurnhamEye.png.1379595099180.png',
-            section: "METADATA_STATE",
-            onClick: function (event) {
-                console.log(event);
-                //thread_id = event.threadView.getThreadID();
-                //console.log(thread_id);
-                //var myWindow = window.open("https://burnham-x.appspot.com/extension/associate/"+ thread_id +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
+        title:"ASSOCIATE",
+        iconUrl: LOGOURL,
+        section: "METADATA_STATE",
+        onClick: function (event) {
+            var selected_emails = event.selectedThreadRowViews;
+            var selected_ids = "";
+            for (var i=0; i<selected_emails.length; i ++)
+            {
+                selected_ids += selected_emails[i].getThreadID() + "_";
+            }
+            var send_to_api = selected_ids.substr(0, selected_ids.length-1);
+            console.log(send_to_api);
+            var myWindow = window.open("https://burnham-x.appspot.com/extension/bulkassociate/"+ send_to_api +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
             },
-
-
     });
 
 
