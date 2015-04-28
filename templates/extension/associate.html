@@ -16,14 +16,17 @@
           },
           load: function(query, callback) {
               if (!query.length) return callback();
+              console.log(query);
               $.ajax({
-                  url: 'https://burnham-x.appspot.com/opportunity/?name' + encodeURIComponent(query),
+                  url: 'https://burnham-x.appspot.com/opportunity/?name=' + encodeURIComponent(query),
                   type: 'GET',
                   error: function() {
-                      callback();
+                    console.log("ERROR");
+                    callback();
                   },
                   success: function(res) {
-                    callback(res.results.slice(0, 10));
+                    console.log(res.results.length);
+                    callback(res.results.slice(0, 20));
                   }
               });
             }
