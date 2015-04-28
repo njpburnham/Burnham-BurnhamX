@@ -113,6 +113,8 @@ MIDDLEWARE_CLASSES = (
     'corsheaders.middleware.CorsMiddleware',
     
 )
+
+# ONLY ALLOW GOOGLE TO MAKE REQUESTS TO THE API
 CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'burnhamx.urls'

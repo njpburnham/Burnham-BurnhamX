@@ -1,6 +1,6 @@
 var sidebarForThread = new WeakMap(); //A Map is an arbitrary value for the value
 var sidebarTemplatePromise = null;
-var LOGOURL = "https://burnham-x.appspot.com/static/images/BEye.png"
+var LOGOURL = "https://burnham-x.appspot.com/static/images/yellowBall.png"
 InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
 
 
@@ -10,7 +10,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
         // a compose view has come into existence, do something with it!
         composeView.addButton({
             title: "Burnham w/InboxSDK",
-            iconUrl: 'images/BEye.png',
+            iconUrl: LOGOURL,
             onClick: function(event) {
                 event.composeView.insertTextIntoBodyAtCursor('Hello Burnham!');
             },
@@ -119,7 +119,7 @@ function addNewAssociationSideBar(threadView)
 
 function addImageToThread(threadRowView, name) {
     threadRowView.addImage({
-        imageUrl: chrome.runtime.getURL("images/BEye.png"),
+        imageUrl: LOGOURL,
         tooltip: name,
     });
 }

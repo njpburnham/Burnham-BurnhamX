@@ -7,6 +7,13 @@ class OpportunityViewSet(BulkModelViewSet):
     queryset = Opportunity.objects.all()
     serializer_class = OpportunitySerializer
     
+    def get_queryset(self):
+      queryset = Opportunity.objects.all()
+      name = self.request.QUERY_PARAMS.get("name", None)
+      if name:
+        # case insensitive search
+        queryset = queryset.filter(name__istartswith=name)
+      return queryset
 
 
 class AssociationViewSet(BulkModelViewSet):
