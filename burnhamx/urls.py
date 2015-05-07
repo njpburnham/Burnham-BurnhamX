@@ -11,6 +11,8 @@ from api import views as api_views
 router = BulkRouter()
 router.register(r'opportunity', api_views.OpportunityViewSet)
 router.register(r'association', api_views.AssociationViewSet)
+router.register(r'users', api_views.UsersViewSet)
+router.register(r'permissions', api_views.PermissionsViewSet)
 
 
 

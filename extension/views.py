@@ -14,7 +14,7 @@ def associate(request, thread_id):
     variables = {}
     if Association.objects.filter(thread_id=thread_id).count() > 0:
       return render_to_response("extension/already_associated.html", variables, context_instance=RequestContext(request))
-    print Association.objects.filter(thread_id=thread_id).count()
+    
     opps = Opportunity.objects.all()
     variables['opps'] = opps
     return render_to_response("extension/associate.html", variables, context_instance=RequestContext(request))

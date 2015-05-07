@@ -35,3 +35,12 @@ class Association(models.Model):
   class Meta:
     ordering = ('create_date',)
 
+class Users(models.Model):
+  """
+  This class holds the users of the application
+  """
+  email = models.CharField(max_length=150)
+  opportunities = models.ManyToManyField(Opportunity)
+  create_date = models.DateTimeField('date created', auto_now_add=True)
+  modified_date = models.DateTimeField('date modified', auto_now=True)
+  

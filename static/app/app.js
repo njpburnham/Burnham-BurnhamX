@@ -1,27 +1,7 @@
 var sidebarForThread = new WeakMap(); //A Map is an arbitrary value for the value
 var sidebarTemplatePromise = null;
-var DOTURL = "http://localhost:41080/static/images/orangedot-1.png"
-var LOGOURL = "https://burnham-x.appspot.com/static/images/BurnhamXLogo.png"
-
-
+var LOGOURL = "https://burnham-x.appspot.com/static/images/yellowBall.png"
 InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
-
-    sdk.Router.handleListRoute(sdk.Router.NativeListRouteIDs.SEARCH , function(searchView) 
-    {
-      var section = searchView.addSection({
-        title: "Results from BurnhamX",
-        subtitle: "search results pertaining specifically to BurnhamX"
-      });
-      
-      searchView.addRows({
-        title:"Test",
-        body: "TEST2",
-        shortDetailText: "MEMEMEME",
-        isRead: "true",
-        labels: [],
-      });
-    
-    });
 
 
     // the SDK has been loaded, now do something with it!
@@ -34,25 +14,24 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             onClick: function(event) {
                 event.composeView.insertTextIntoBodyAtCursor('Hello Burnham!');
             },
-        }); 
+        });
     });
 
 
     // LIST VIEW
     sdk.Lists.registerThreadRowViewHandler(function(threadRowView) {
         var curr_id = threadRowView.getThreadID();
-
         // We need to replace this with an API calls
-        // var url = "https://burnham-x.appspot.com/association/?thread_id=" + curr_id;
-        // $.ajax({
-        //     url: url,
-        //     type: "GET",
-        //     success: function(data) {
-        //         if (data.count >= 1) {
-        //             addImageToThread(threadRowView, data.results[0].opportunity.name)
-        //         }
-        //     }
-        // });chr 
+        var url = "https://burnham-x.appspot.com/association/?thread_id=" + curr_id;
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function(data) {
+                if (data.count >= 1) {
+                    addImageToThread(threadRowView, data.results[0].opportunity.name)
+                }
+            }
+        });
     });
 
     sdk.Toolbars.registerToolbarButtonForList({
@@ -126,7 +105,7 @@ function addNewAssociationSideBar(threadView)
         threadView.addSidebarContentPanel({
             el: sidebarForThread.get(threadView),
             title: "BurnhamX",
-            iconUrl: chrome.runtime.getURL(LOGOURL)
+            iconUrl: chrome.runtime.getURL('images/BEye.png')
         });
     }
     var source = '<div class="column"><h3>Not Associated</h3>Click the <img src="' +  LOGOURL +'"> icon on the navigation bar to associate</div>';
@@ -140,7 +119,7 @@ function addNewAssociationSideBar(threadView)
 
 function addImageToThread(threadRowView, name) {
     threadRowView.addImage({
-        imageUrl: DOTURL,
+        imageUrl: LOGOURL,
         tooltip: name,
     });
 }
@@ -152,7 +131,7 @@ function addAssociatedSideBar(threadView, oppData) {
         threadView.addSidebarContentPanel({
             el: sidebarForThread.get(threadView),
             title: "BurnhamX",
-            iconUrl: chrome.runtime.getURL(LOGOURL)
+            iconUrl: chrome.runtime.getURL('images/BEye.png')
         });
     }
 
@@ -182,6 +161,6 @@ function isAssociated(threadID)
     });    
 
 }
-function getHtml(e){
+function getHtml(){
     return "<h3>hey</h3>";
 }

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.forms import widgets
-from extension.models import Opportunity, Association
+from extension.models import Opportunity, Association, Users
 from rest_framework_bulk import BulkListSerializer, BulkSerializerMixin, ListBulkCreateUpdateDestroyAPIView
 
 class OpportunitySerializer(BulkSerializerMixin, serializers.ModelSerializer):
@@ -21,8 +21,15 @@ class AssociationSerializer(BulkSerializerMixin, serializers.ModelSerializer):
 
     
     
-    
+class UsersSerializer(BulkSerializerMixin, serializers.ModelSerializer):
 
-    
+  class Meta:
+    model = Users
+    list_serializer_class = BulkListSerializer
 
 
+class PermissionsSerializer(BulkSerializerMixin, serializers.ModelSerializer):
+  
+  class Meta:
+    model = Users
+    list_serializer_class = BulkListSerializer

@@ -1,0 +1,1 @@
+InboxSDK.loadScript('https://burnham-x.appspot.com/static/app/app.js')
