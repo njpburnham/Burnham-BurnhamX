@@ -1,0 +1,31 @@
+{
+  "name": "BurnhamX",
+  "description": "Gmail and Siebel Combined",
+  "version": "0.28",
+  "icons":
+  {
+      "128":"images/BEye.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mail.google.com/*",
+        "https://inbox.google.com/*"
+      ],
+      "js": ["js/jquery.js", "js/handlebars.js", "js/inboxsdk.js","js/loader.js"],
+      "css": ["style.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "permissions": [
+    "https://mail.google.com/",
+    "https://inbox.google.com/",
+    "https://burnham-x.appspot.com/"
+  ],
+    "web_accessible_resources": [
+    "images/BEye.png",
+    "images/long_BE.png",
+    "foundAssoc.html"
+  ],
+  "manifest_version": 2
+}

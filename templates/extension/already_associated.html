@@ -1,0 +1,19 @@
+{% extends "extension/index.html" %} 
+
+{% block script %}
+  {{ block.super }}
+  <script type="text/javascript">
+    window.setTimeout(function() {
+      window.close();
+    }, 5000);
+
+  </script>
+{% endblock %}
+
+{% block body %}
+<div class='container'>
+  <h3>Already Associated!</h3>
+    That thread is already associated to an opportunity. <br />
+    This window will close in 5 seconds
+</div>
+{% endblock %}

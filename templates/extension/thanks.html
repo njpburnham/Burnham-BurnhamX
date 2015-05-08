@@ -1,0 +1,18 @@
+{% extends "extension/index.html" %} 
+
+{% block script %}
+  {{ block.super }}
+  <script type="text/javascript">
+    window.setTimeout(function() {
+      window.close();
+    }, 1000);
+
+  </script>
+{% endblock %}
+
+{% block body %}
+<div class='container'>
+  <h3>Thanks!</h3>
+  The window will close in 1 second
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "extension/index.html" %} 
+
+{% block script %}
+  {{ block.super }}
+  <script type="text/javascript">
+  $(document).ready( function() {
+      $('#opps').selectize({
+         valueField: 'id',
+          labelField: 'name',
+          searchField: 'name',
+          create: false,
+          render: {
+              option: function(item, escape) {
+                return '<option value="'+ escape(item.id) + '">' + escape(item.name) + '</option>';
+              }
+          },
+          load: function(query, callback) {
+              if (!query.length) return callback();
+              console.log(query);
+              $.ajax({
+                  url: 'https://burnham-x.appspot.com/opportunity/?name=' + encodeURIComponent(query),
+                  type: 'GET',
+                  error: function() {
+                    console.log("ERROR");
+                    callback();
+                  },
+                  success: function(res) {
+                    callback(res.results.slice(0, 20));
+                  }
+              });
+            }
+        });
+      });
+
+
+    
+  </script>
+{% endblock %}
+
+
+
+{% block body %}
+<div class='container'>
+  <h3>BurnhamX</h3>
+  <h4>Choose an opportunity to associate an email</h4>
+  <div>
+    <form name='/extension/associate/{{ thread_id }}' method='post' class='form-horizontal'>
+      {% csrf_token %}
+      
+      <div class='form-group'>
+        <label for='opp' class='control-label col-md-1'>Opportunities</label>
+        <div class='col-md-5'>
+          <select id='opps' name='opp' class='form-control' placeholder="Search for an opportunity..."></select>
+        </div>
+      </div>
+      <button type='submit' class='btn btn-primary'>Associate</button>
+    </form>
+  </div>
+  </div>
+{% endblock %}
