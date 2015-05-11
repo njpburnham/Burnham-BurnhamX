@@ -6,22 +6,22 @@ var LARGELOGO = "http://burnham-x.appspot.com/static/images/BurXLarge.png"
 
 InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
 
-    // sdk.Router.handleListRoute(sdk.Router.NativeListRouteIDs.SEARCH , function(searchView) 
-    // {
-    //   var section = searchView.addSection({
-    //     title: "Results from BurnhamX",
-    //     subtitle: "search results pertaining specifically to BurnhamX"
-    //   });
+    sdk.Router.handleListRoute(sdk.Router.NativeListRouteIDs.SEARCH , function(searchView) 
+    {
+      var section = searchView.addSection({
+        title: "Results from BurnhamX",
+        subtitle: "Search results pertaining specifically to BurnhamX"
+      });
       
-    //   searchView.addRows({
-    //     title:"Test",
-    //     body: "TEST2",
-    //     shortDetailText: "MEMEMEME",
-    //     isRead: "true",
-    //     labels: [],
-    //   });
+      searchView.addRows({
+        title:"Test",
+        body: "TEST2",
+        shortDetailText: "MEMEMEME",
+        isRead: "true",
+        labels: [],
+      });
     
-    // });
+    });
 
 
     // the SDK has been loaded, now do something with it!
@@ -157,7 +157,7 @@ function addAssociatedSideBar(threadView, oppData) {
     }
 
 
-    var source = '<div class="column"><h4>Association Found</h4>Customer: {{name}} <br />Address: {{address}}<br /></div>';
+    var source = '<div class="column"><h4>Association Found</h4>OPTY: {{name}} <br />Address: {{address}}<br /></div>';
     var template = Handlebars.compile(source);
     var context = {
         name: oppData.name,

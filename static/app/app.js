@@ -157,7 +157,7 @@ function addAssociatedSideBar(threadView, oppData) {
     }
 
 
-    var source = '<div class="column"><h4>Association Found</h4>Customer: {{name}} <br />Address: {{address}}<br /></div>';
+    var source = '<div class="column"><h4>Association Found</h4>OPTY: {{name}} <br />Address: {{address}}<br /></div>';
     var template = Handlebars.compile(source);
     var context = {
         name: oppData.name,
