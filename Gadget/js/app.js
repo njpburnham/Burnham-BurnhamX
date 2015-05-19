@@ -109,46 +109,33 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             },
         });
 
-    sdk.Conversations.registerMessageViewHandler(function(messageView) {
-
-        var threadView = messageView.getThreadView();
-        
-        //console.log(threadView);
+    sdk.Conversations.registerThreadViewHandler(function(threadView) {
+        console.log(threadView);
         var url = "https://burnham-x.appspot.com/association/?thread_id=" + threadView.getThreadID();
-        if (messageView.getViewState() == sdk.Conversations.MessageViewViewStates.EXPANDED)
-        {
-            $.ajax({
-                url: url,
-                type: "GET",
-                success: function(data) { //
-                    if (data.count >= 1) {
-                        $.ajax({
-                            
-                            url: "https://burnham-x.appspot.com/opportunity/" + data.results[0].opportunity.id + "/",
-                            type: "GET",
-                            success: function(oppData) {
-                                console.log(oppData);
-                                addAssociatedSideBar(threadView, oppData);
-                            }
-                        });
-                    }
-                    else
-                    {
-                          addNewAssociationSideBar(threadView);                  
-                    }
-                }
-            });
-         }
-         else
-         {
-            if (addedSideBars.has(threadView))
-            {
-                var currView = addedSideBars.get(threadView);
-                currView.remove();
 
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function(data) { //
+                if (data.count >= 1) {
+                    $.ajax({
+                        
+                        url: "https://burnham-x.appspot.com/opportunity/" + data.results[0].opportunity.id + "/",
+                        type: "GET",
+                        success: function(oppData) {
+                            console.log(oppData);
+                            addAssociatedSideBar(threadView, oppData);
+                        }
+                    });
+                }
+                else
+                {
+                      addNewAssociationSideBar(threadView);                  
+                }
             }
-         }
+        });
     });
+
 });
 
 
