@@ -4,7 +4,7 @@ from extension.models import Opportunity, Association, Users
 from rest_framework_bulk import BulkListSerializer, BulkSerializerMixin, ListBulkCreateUpdateDestroyAPIView, BulkModelViewSet
 from google.appengine.api import users
 from rest_framework.response import Response
-
+from django.db.models import Q
 
 class OpportunityViewSet(BulkModelViewSet):
     queryset = Opportunity.objects.all()
@@ -29,8 +29,11 @@ class AssociationViewSet(BulkModelViewSet):
     def get_queryset(self):
       queryset = Association.objects.all()
       thread_id = self.request.QUERY_PARAMS.get("thread_id", None)
+      search = self.request.QUERY_PARAMS.get("search", None)
       if thread_id:
         queryset = queryset.filter(thread_id=thread_id)
+      if search:
+        queryset = queryset.filter(Q(opportunity__siebel_id=search) | Q(opportunity__name__istartswith=search))
       return queryset
 
 
