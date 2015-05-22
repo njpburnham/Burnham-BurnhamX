@@ -6,7 +6,7 @@ from django.core.context_processors import csrf
 from google.appengine.api import users
 
 
-def associate(request, thread_id):
+def associate(request, thread_id, message_id):
   if not users.get_current_user():
     return HttpResponseRedirect(users.create_login_url(request.path))
 
@@ -25,7 +25,7 @@ def associate(request, thread_id):
     
     association = Association()
     association.thread_id = thread_id
-    association.email_id = "" #TODO
+    association.email_id = message_id
     association.opportunity = curr_opp
     association.created_user = users.get_current_user()
     association.save()

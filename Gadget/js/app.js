@@ -7,44 +7,44 @@ var LARGELOGO = "https://burnham-x.appspot.com/static/images/BurXLarge.png"
 
 InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
 
-    // sdk.Search.registerSearchSuggestionsProvider(function (search) {
-    //     console.log(search);
+    sdk.Search.registerSearchSuggestionsProvider(function (search) {
+        console.log(search);
 
-    //     return [{name:"Alex", description:"BurnhamX Searching", routeName:sdk.Router.NativeListRouteIDs.SEARCH, iconUrl:LOGOURL }];
-    // });
+        return [{name:"Alex", description:"BurnhamX Searching", routeName:sdk.Router.NativeListRouteIDs.SEARCH, iconUrl:LOGOURL }];
+    });
 
 
-    // sdk.Router.handleListRoute(sdk.Router.NativeListRouteIDs.SEARCH, function(searchView) 
-    // {
+    sdk.Router.handleListRoute(sdk.Router.NativeListRouteIDs.SEARCH, function(searchView) 
+    {
         
-    //   var query = searchView.getParams()['query']
-    //   var table_rows = [];
-    //   var search_results = getBurnhamXSearchResults(query, function(data){
+      var query = searchView.getParams()['query']
+      var table_rows = [];
+      var search_results = getBurnhamXSearchResults(query, function(data){
         
-    //     var results = data.results;
-    //     for (var i=0; i <results.length; i++)
-    //     {
-    //         var tmp_thread_id = results[i]['thread_id'];
-    //         console.log(tmp_thread_id);
-    //         var tmp_row = {
-    //             title: "Email Subject",
-    //             body: "Short Snippet",
-    //             shortDetailText: "5/5/2015",
-    //             isRead: "false",
-    //             labels: [{title: results[i]['opportunity']['name'], foregroundColor:"orange", backgroundColor:"white", iconurl: LOGOURL}],
-    //             iconUrl: LOGOURL,
-    //             routeID: sdk.Router.NativeRouteIDs.THREAD,
-    //             routeParams: results[i]['thread_id']
-    //         };
-    //         table_rows.push(tmp_row);
-    //     }
-    //     var section = searchView.addCollapsibleSection({
-    //       title: "Results from BurnhamX",
-    //       subtitle: "Search results pertaining specifically to BurnhamX",
-    //       tableRows: table_rows 
-    //     }).setCollapsed(false);
-    //   });
-    // });
+        var results = data.results;
+        for (var i=0; i <results.length; i++)
+        {
+            var tmp_thread_id = results[i]['thread_id'];
+            console.log(tmp_thread_id);
+            var tmp_row = {
+                title: "Email Subject",
+                body: "Short Snippet",
+                shortDetailText: "5/5/2015",
+                isRead: "false",
+                labels: [{title: results[i]['opportunity']['name'], foregroundColor:"orange", backgroundColor:"white", iconurl: LOGOURL}],
+                iconUrl: LOGOURL,
+                routeID: sdk.Router.NativeRouteIDs.THREAD,
+                routeParams: results[i]['thread_id']
+            };
+            table_rows.push(tmp_row);
+        }
+        var section = searchView.addCollapsibleSection({
+          title: "Results from BurnhamX",
+          subtitle: "Search results pertaining specifically to BurnhamX",
+          tableRows: table_rows 
+        }).setCollapsed(false);
+      });
+    });
 
     
     // the SDK has been loaded, now do something with it!
@@ -103,13 +103,13 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             section: "METADATA_STATE",
             onClick: function (event) {
                 thread_id = event.threadView.getThreadID();
-                console.log(event.threadView.getMessageViews());
-                var myWindow = window.open("https://burnham-x.appspot.com/extension/associate/"+ thread_id +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
+                message_id = event.threadView.getMessageViews()[0].getMessageID()
+                var myWindow = window.open("https://burnham-x.appspot.com/extension/associate/"+ thread_id +"/" + message_id +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
             },
         });
 
     sdk.Conversations.registerThreadViewHandler(function(threadView) {
-        console.log(threadView);
+        
         var url = "https://burnham-x.appspot.com/association/?thread_id=" + threadView.getThreadID();
 
         $.ajax({
@@ -134,6 +134,9 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             }
         });
     });
+
+
+    
 });
 
 
@@ -165,7 +168,7 @@ function addNewAssociationSideBar(threadView)
     var source = '<div class="column"><h3>No Association Found</h3>Click below to associate <input type="image" src="' + LOGOURL + '" onclick="window.open(\'{{url}}\', \'Associate\', \'left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no\')"></div>';
     var template = Handlebars.compile(source);
     var context = {
-        url: "https://burnham-x.appspot.com/extension/associate/"+ threadView.getThreadID() +"/"
+        url: "https://burnham-x.appspot.com/extension/associate/"+ threadView.getThreadID() +"/" + threadvew.getMessageViews()[0].getMessageID() + "/"
     };
     var html = template(context);
     

@@ -103,13 +103,13 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             section: "METADATA_STATE",
             onClick: function (event) {
                 thread_id = event.threadView.getThreadID();
-                console.log(event.threadView.getMessageViews());
-                var myWindow = window.open("https://burnham-x.appspot.com/extension/associate/"+ thread_id +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
+                message_id = event.threadView.getMessageViews()[0].getMessageID()
+                var myWindow = window.open("https://burnham-x.appspot.com/extension/associate/"+ thread_id +"/" + message_id +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
             },
         });
 
     sdk.Conversations.registerThreadViewHandler(function(threadView) {
-        console.log(threadView);
+        
         var url = "https://burnham-x.appspot.com/association/?thread_id=" + threadView.getThreadID();
 
         $.ajax({
@@ -165,7 +165,7 @@ function addNewAssociationSideBar(threadView)
     var source = '<div class="column"><h3>No Association Found</h3>Click below to associate <input type="image" src="' + LOGOURL + '" onclick="window.open(\'{{url}}\', \'Associate\', \'left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no\')"></div>';
     var template = Handlebars.compile(source);
     var context = {
-        url: "https://burnham-x.appspot.com/extension/associate/"+ threadView.getThreadID() +"/"
+        url: "https://burnham-x.appspot.com/extension/associate/"+ threadView.getThreadID() +"/" + threadvew.getMessageViews()[0].getMessageID() + "/"
     };
     var html = template(context);
     
