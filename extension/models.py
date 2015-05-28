@@ -29,6 +29,7 @@ class Association(models.Model):
   thread_id = models.CharField(max_length=150)
   opportunity = models.ForeignKey(Opportunity, related_name='associations')
   created_user = models.CharField(max_length=150) # Mostly likely either an email address or `Siebel`
+  is_active = models.BooleanField(default=True)
   create_date = models.DateTimeField('date created', auto_now_add=True)
   modified_date = models.DateTimeField('date modified', auto_now=True)
 

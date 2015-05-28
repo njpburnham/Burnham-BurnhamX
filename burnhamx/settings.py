@@ -1,7 +1,7 @@
 # Django settings for burnhamx project.
 import os
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -130,14 +130,14 @@ TEMPLATE_DIRS = (
 )
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated'
-    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated'
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework.authentication.TokenAuthentication',
-    # )
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 
 }
@@ -148,7 +148,7 @@ SWAGGER_SETTINGS = {
     'api_path': '/',
     'enabled_methods': ['get','post'],
     'api_key': '',
-    'is_authenticated': False,
+    'is_authenticated': True,
     'is_superuser': False,
     'permission_denied_handler': None,
     'doc_expansion': 'none',

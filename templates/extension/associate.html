@@ -18,6 +18,9 @@
               if (!query.length) return callback();
               console.log(query);
               $.ajax({
+                beforeSend: function (xhr){
+                    xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
+                },
                   url: 'https://burnham-x.appspot.com/opportunity/?name=' + encodeURIComponent(query),
                   type: 'GET',
                   error: function() {

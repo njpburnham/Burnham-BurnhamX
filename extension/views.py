@@ -7,12 +7,24 @@ from google.appengine.api import users
 
 
 def associate(request, thread_id, message_id):
+  """
+  Inputs:
+    - request: Django Request Object
+    - thread_id: The Gmail Thread ID. Each thread has a unique thread and is located in the URl
+    - message_id: The individual message that the user was looking at when they clicked associate
+  
+  If the user chooses an OPTY to associate the email, the application will associate and direct to a thanks page (5 second close timer)
+
+  """
   if not users.get_current_user():
     return HttpResponseRedirect(users.create_login_url(request.path))
 
   if request.method == "GET":
     variables = {}
-    if Association.objects.filter(thread_id=thread_id).count() > 0:
+    # The association must not only be related to the thread, but also active
+    curr_assoc = Association.objects.filter(thread_id=thread_id, is_active=True)
+    if curr_assoc.count() > 0:
+      variables['association'] = curr_assoc[0]
       return render_to_response("extension/already_associated.html", variables, context_instance=RequestContext(request))
     
     opps = Opportunity.objects.all()
@@ -37,6 +49,14 @@ def thanks(request):
 
 
 def bulk_associate(request, thread_ids):
+  """
+  Inputs:
+
+
+  
+
+
+  """
   if not users.get_current_user():
     return HttpResponseRedirect(users.create_login_url(request.path))
 
@@ -65,3 +85,20 @@ def bulk_associate(request, thread_ids):
       association.save()
   
     return redirect("/extension/thanks")
+
+def unassociate(request):
+  if request.method == "POST":
+    association = Association.objects.get(pk=request.POST['association'])
+    association.is_active = False
+    association.save()
+
+  return redirect("/extension/thanks")
+
+
+
+
+
+
+
+
+
