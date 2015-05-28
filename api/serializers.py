@@ -33,3 +33,5 @@ class PermissionsSerializer(BulkSerializerMixin, serializers.ModelSerializer):
   class Meta:
     model = Users
     list_serializer_class = BulkListSerializer
+
+    

@@ -113,7 +113,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
 
     sdk.Conversations.registerThreadViewHandler(function(threadView) {
         
-        var url = "https://burnham-x.appspot.com/association/?thread_id=" + threadView.getThreadID();
+        var url = "https://burnham-x.appspot.com/association/?active=true&thread_id=" + threadView.getThreadID();
 
         $.ajax({
             url: url,

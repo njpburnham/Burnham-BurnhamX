@@ -34,17 +34,40 @@ class AssociationViewSet(BulkModelViewSet):
       thread_id = self.request.QUERY_PARAMS.get("thread_id", None)
       search = self.request.QUERY_PARAMS.get("search", None)
       since_date = self.request.QUERY_PARAMS.get("since", None)
-      is_active = self.request.QUERY_PARAMS.get("archive", None)
+      is_active = self.request.QUERY_PARAMS.get("active", None)
       if thread_id:
         queryset = queryset.filter(thread_id=thread_id)
+      if thread_id and is_active:
+        if is_active == "true":
+          queryset = queryset.filter(thread_id=thread_id, is_active=True)
+        else:
+          queryset = queryset.filter(thread_id=thread_id, is_active=False)
       if since_date:
         since = parser.parse(since_date)
-        print since
         queryset = queryset.filter(create_date__gt=since)
       if search:
         queryset = queryset.filter(Q(opportunity__siebel_id=search) | Q(opportunity__name__istartswith=search))
 
       return queryset
+
+
+    def create(self, request):
+      delete  = self.request.data.get("delete", None)
+      message_id = self.request.data.get("messageID", None)
+
+      if delete and message_id:
+        assoc = Association.objects.filter(email_id=message_id)
+        if not assoc:
+          return  Response({"status":"Found no association with the message id of %s" % message_id}, status=status.HTTP_202_ACCEPTED)
+        else:
+          association = assoc[0]
+          association.delete()
+          return Response({"status":"Delete association with message id of %s" % message_id}, status=status.HTTP_200_OK)
+
+      else:
+        return Response({"status": "Not all required arguments present. Delete=true is required. messageID is required"}, status=status.HTTP_200_OK)
+      
+      
 
 class UsersViewSet(BulkModelViewSet):
   queryset = Users.objects.all()
@@ -58,7 +81,20 @@ class PermissionsViewSet(BulkModelViewSet):
   def create(self, request):
     user_email  = self.request.data.get("email", None)
     siebel_id = self.request.data.get("siebelID", None)
+    delete = self.request.data.get("delete", None)
     
+    # We're deleting objects here
+    if delete:
+      user = Users.objects.get(email=user_email)
+      opp = Opportunity.objects.get(siebel_id=siebel_id)
+
+      user.opportunities.remove(opp)
+
+      return Response({"status":"deleted"}, status=status.HTTP_200_OK)
+    else:
+      return Resonse({"status":"error"})
+
+    # we're creating objects here
     if user_email and siebel_id:
       #searializer = PermissionsSerializer(data={email=user_email})
       user = Users.objects.get(email=user_email)
@@ -68,21 +104,4 @@ class PermissionsViewSet(BulkModelViewSet):
 
       return Response({"status":"created"}, status=status.HTTP_201_CREATED)
     else:
-      return Resonse()
-
-  def delete(self, request):
-    user_email  = self.request.data.get("email", None)
-    siebel_id = self.request.data.get("siebelID", None)
-    
-    if user_email and siebel_id:
-      #searializer = PermissionsSerializer(data={email=user_email})
-      user = Users.objects.get(email=user_email)
-      opp = Opportunity.objects.get(siebel_id=siebel_id)
-
-      user.opportunities.remove(opp)
-
-      return Response({"status":"deleted"}, status=status.HTTP_201_CREATED)
-    else:
-      return Resonse()
-
-
+      return Resonse({"status":"error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
