@@ -35,6 +35,9 @@ class AssociationViewSet(BulkModelViewSet):
       search = self.request.QUERY_PARAMS.get("search", None)
       since_date = self.request.QUERY_PARAMS.get("since", None)
       is_active = self.request.QUERY_PARAMS.get("active", None)
+      message_id = self.request.QUERY_PARAMS.get('message_id', None)
+      if message_id:
+        queryset = queryset.filter(email_id=message_id)
       if thread_id:
         queryset = queryset.filter(thread_id=thread_id)
       if thread_id and is_active:
@@ -65,7 +68,22 @@ class AssociationViewSet(BulkModelViewSet):
           return Response({"status":"Delete association with message id of %s" % message_id}, status=status.HTTP_200_OK)
 
       else:
-        return Response({"status": "Not all required arguments present. Delete=true is required. messageID is required"}, status=status.HTTP_200_OK)
+        association = Association()
+        association.email_id = self.request.data.get("email_id", None)
+        association.thread_id = self.request.data.get("thread_id", None)
+        if self.request.data.get('siebel_id'):
+          opp = Opportunity.objects.get(siebel_id=self.request.data.get('siebel_id'))
+          association.opportunity = opp
+        else:
+          association.opportunity_id = self.request.data.get("opportunity", None)
+        association.created_user = self.request.data.get("created_user", None)
+        association.is_active = True
+        association.save()
+
+        return Response({"status":"Created"}, status=status.HTTP_201_CREATED)
+
+
+        
       
       
 

@@ -113,7 +113,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
 
     sdk.Conversations.registerThreadViewHandler(function(threadView) {
         
-        var url = "https://burnham-x.appspot.com/association/?thread_id=" + threadView.getThreadID();
+        var url = "https://burnham-x.appspot.com/association/?active=true&thread_id=" + threadView.getThreadID();
 
         $.ajax({
             url: url,
@@ -206,7 +206,7 @@ function addAssociatedSideBar(threadView, oppData) {
             iconUrl: LARGELOGO
         });
     }
-    var source = '<div class="column"><h4>Association Found</h4>OPTY: {{name}} <br />Address: {{address}}<br /></div>';
+    var source = '<div class="column"><h4>Association Found</h4><b>OPTY:</b> {{name}} <br /><br /><b>Address:</b> {{address}}<br /></div>';
     var template = Handlebars.compile(source);
     var context = {
         name: oppData.name,

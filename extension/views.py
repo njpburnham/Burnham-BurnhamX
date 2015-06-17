@@ -4,6 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from google.appengine.api import users
+from google.appengine.api import taskqueue
+
 
 
 def associate(request, thread_id, message_id):
@@ -27,14 +29,13 @@ def associate(request, thread_id, message_id):
       variables['association'] = curr_assoc[0]
       return render_to_response("extension/already_associated.html", variables, context_instance=RequestContext(request))
     
-    opps = Opportunity.objects.all()
-    variables['opps'] = opps
     return render_to_response("extension/associate.html", variables, context_instance=RequestContext(request))
   else:
     variables = {}
     curr_opp = Opportunity.objects.get(pk=request.POST['opp'])
+    # Push onto queue
     # Just a single association
-    
+    taskqueue.add(url='/extension/pastAssociation/', params={"thread_id": thread_id, "user": users.get_current_user()})
     association = Association()
     association.thread_id = thread_id
     association.email_id = message_id
@@ -45,7 +46,7 @@ def associate(request, thread_id, message_id):
     return redirect("/extension/thanks")
 
 def thanks(request):
-  return  render_to_response("extension/thanks.html")
+  return render_to_response("extension/thanks.html")
 
 
 def bulk_associate(request, thread_ids):
@@ -77,7 +78,7 @@ def bulk_associate(request, thread_ids):
     # this means it's a bulk association
     
     for thread_id in thread_ids.split('_'):
-      association = Association()  
+      association = Association()
       association.thread_id = thread_id
       association.email_id = "" #TODO
       association.opportunity = curr_opp
@@ -93,6 +94,21 @@ def unassociate(request):
     association.save()
 
   return redirect("/extension/thanks")
+
+
+#
+#@csrf_exempt
+def past_association(request):
+  # create gmail service object
+  # loop through and check all messages in threads
+  
+
+  print 'HEREERERE'
+  return HttpResponse(status=200) 
+  
+
+
+
 
 
 
