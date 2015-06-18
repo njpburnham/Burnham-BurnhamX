@@ -1,11 +1,19 @@
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+import httplib2
+from django.shortcuts import render_to_response, get_object_or_404, redirect, render
 from extension.models import Opportunity, Association
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
+from django.views.decorators.csrf import csrf_exempt
 from django.core.context_processors import csrf
 from google.appengine.api import users
 from google.appengine.api import taskqueue
+from oauth2client.client import SignedJwtAssertionCredentials
+from apiclient.discovery import build
+from apiclient import errors
 
+
+
+SERVICE_ACCOUNT_EMAIL = "643460748243-5j6p8t6373k4jqheajld7um4s7r64pi2@developer.gserviceaccount.com"
 
 
 def associate(request, thread_id, message_id):
@@ -25,10 +33,10 @@ def associate(request, thread_id, message_id):
     variables = {}
     # The association must not only be related to the thread, but also active
     curr_assoc = Association.objects.filter(thread_id=thread_id, is_active=True)
-    if curr_assoc.count() > 0:
+    if curr_assoc.exists():
       variables['association'] = curr_assoc[0]
       return render_to_response("extension/already_associated.html", variables, context_instance=RequestContext(request))
-    
+    variables['user'] = users.get_current_user()
     return render_to_response("extension/associate.html", variables, context_instance=RequestContext(request))
   else:
     variables = {}
@@ -96,25 +104,63 @@ def unassociate(request):
   return redirect("/extension/thanks")
 
 
+
+
 #
-#@csrf_exempt
+@csrf_exempt
 def past_association(request):
   # create gmail service object
   # loop through and check all messages in threads
   
+  service = create_gmail_service("cloudbakers@burnhamnationwide.com")
+  thread = GetThread(service, "cloudbakers@burnhamnationwide.com", "14deb719637ed4c2")
+  
 
-  print 'HEREERERE'
   return HttpResponse(status=200) 
   
 
 
 
 
+def GetThread(service, user_id, thread_id):
+  """Get a Thread.
+
+  Args:
+    service: Authorized Gmail API service instance.
+    user_id: User's email address. The special value "me"
+    can be used to indicate the authenticated user.
+    thread_id: The ID of the Thread required.
+
+  Returns:
+    Thread with matching ID.
+  """
+  try:
+    thread = service.users().threads().get(userId=user_id, id=thread_id).execute()
+    messages = thread['messages']
+    print ('thread id: %s - number of messages '
+           'in this thread: %d') % (thread['id'], len(messages))
+    return thread
+  except errors.HttpError, error:
+    print 'An error occurred: %s' % error
 
 
 
 
 
-
+def create_gmail_service(user_email):
+    """
+    Builds and returns a Gmail service object authorized with the
+    application's service account.
+    Returns:
+        Gmail service object.
+    """
+    f = file('bprivate.pem', 'rb')
+    key = f.read()
+    f.close()
+    credentials = SignedJwtAssertionCredentials(SERVICE_ACCOUNT_EMAIL, key, scope='https://mail.google.com/', sub=user_email)
+    http = httplib2.Http()
+    http = credentials.authorize(http)
+     
+    return build('gmail', 'v1', http=http)
 
 
