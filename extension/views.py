@@ -43,14 +43,15 @@ def associate(request, thread_id, message_id):
     curr_opp = Opportunity.objects.get(pk=request.POST['opp'])
     # Push onto queue
     # Just a single association
-    taskqueue.add(url='/extension/pastAssociation/', params={"thread_id": thread_id, "user": users.get_current_user()})
+    
     association = Association()
     association.thread_id = thread_id
     association.email_id = message_id
     association.opportunity = curr_opp
     association.created_user = users.get_current_user()
     association.save()
-
+    taskqueue.add(url='/extension/pastAssociation/', params={"thread_id": thread_id, "user": users.get_current_user()})
+    
     return redirect("/extension/thanks")
 
 def thanks(request):
@@ -111,10 +112,55 @@ def unassociate(request):
 def past_association(request):
   # create gmail service object
   # loop through and check all messages in threads
+  thread_id = request.POST['thread_id']
+  user = request.POST['user']
+  service = create_gmail_service(user)
+  thread = GetThread(service, user, thread_id)
+  if len(thread['messages']) > 1:
+    print "There are messages in this thread"
+    # loop through all past messages
+    # check to see if message_id is in association table and then associate
+    existing_association = Association.objects.get(thread_id=thread_id)
+    for message in thread['messages']:
+      existing_message = Association.objects.filter(email_id=message['id'])
+      # if the message exists already, that means that it already associated
+      if not existing_message:
+        assocation = Association.objects.create(
+            thread_id = thread_id,
+            email_id = message['id'],
+            opportunity = existing_association.opportunity,
+            created_user = user
+            )
+        print "associated: %s" % assocation.id
+
+
+
+
+  return HttpResponse(status=200) 
   
-  service = create_gmail_service("cloudbakers@burnhamnationwide.com")
-  thread = GetThread(service, "cloudbakers@burnhamnationwide.com", "14deb719637ed4c2")
+@csrf_exempt
+def future(request):
+  # create gmail service object
+  # loop through and check all messages in threads
+  thread_id = request.GET['thread_id']
+  message_id = request.GET['message_id']
   
+  
+  existing_association = Association.objects.filter(thread_id=thread_id)
+  if existing_association:
+      existing_message = Association.objects.filter(email_id=message_id)
+      # if the message exists already, that means that it already associated
+      if not existing_message:
+        assocation = Association.objects.create(
+            thread_id = thread_id,
+            email_id = message_id,
+            opportunity = existing_association[0].opportunity,
+            created_user = existing_association[0].created_user
+            )
+        print "associated: %s" % assocation.id
+
+
+
 
   return HttpResponse(status=200) 
   

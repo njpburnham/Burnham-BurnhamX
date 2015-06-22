@@ -21,8 +21,8 @@
                 beforeSend: function (xhr){
                     xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
                 },
-                  url: 'http://localhost:41080/opportunity/?name=' + encodeURIComponent(query) + '&user={{ user }}',  
-                  //url: 'https://burnham-x.appspot.com/opportunity/?name=' + encodeURIComponent(query),
+                  //url: 'http://localhost:41080/opportunity/?name=' + encodeURIComponent(query) + '&user={{ user }}',  
+                  url: 'https://burnham-x.appspot.com/opportunity/?name=' + encodeURIComponent(query) + '&user={{ user }}',
                   type: 'GET',
                   error: function() {
                     console.log("ERROR");
@@ -44,7 +44,7 @@
 {% block body %}
 <div class='container'>
   <h3>BurnhamX</h3>
-  <h4>Choose an opportunity to associate an email {{ user }}</h4>
+  <h4>Choose an opportunity to associate an email</h4>
   <div>
     <form name='/extension/associate/{{ thread_id }}' method='post' class='form-horizontal'>
       {% csrf_token %}

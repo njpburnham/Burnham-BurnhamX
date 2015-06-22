@@ -111,6 +111,25 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             },
         });
 
+    sdk.Conversations.registerMessageViewHandler(function(messageView) {
+        // This call will be fired when the message is expaned for the first time
+        if (messageView.getViewState() == "EXPANDED")
+        {
+            //addSideBarForMessage(messageView.getMessageID(), messageView.getThreadView());
+            var message_id = messageView.getMessageID();
+            var thread_id = messageView.getThreadView().getThreadID();
+            $.ajax({
+                url: "https://burnham-x.appspot.com/extension/future/?message_id=" + message_id +  "&thread_id=" + thread_id,
+                type:'GET'
+            })
+        }
+        // This is triggered when a particular message is re-expanded.
+        messageView.on('viewStateChange', function(event) {
+            console.log(event);
+            //addSideBarForMessage(event.messageView.getMessageID(), event.messageView.getThreadView());
+        })
+    });
+
     sdk.Conversations.registerThreadViewHandler(function(threadView) {
         
         var url = "https://burnham-x.appspot.com/association/?active=true&thread_id=" + threadView.getThreadID();

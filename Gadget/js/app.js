@@ -45,10 +45,26 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
     //     }).setCollapsed(false);
     //   });
     // });
-  
+
+    
+    // // the SDK has been loaded, now do something with it!
+    // sdk.Compose.registerComposeViewHandler(function(composeView) {
+
+    //     // a compose view has come into existence, do something with it!
+    //     composeView.addButton({
+    //         title: "Burnham w/InboxSDK",
+    //         iconUrl: LOGOURL,
+    //         onClick: function(event) {
+    //             event.composeView.insertTextIntoBodyAtCursor('Hello Burnham!');
+    //         },
+    //     }); 
+    // });
+
+
     // LIST VIEW
     sdk.Lists.registerThreadRowViewHandler(function(threadRowView) {
         var curr_id = threadRowView.getThreadID();
+
         // We need to replace this with an API calls
         var url = "https://burnham-x.appspot.com/association/?thread_id=" + curr_id;
         $.ajax({
@@ -95,68 +111,61 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             },
         });
 
-    
-    // sdk.Conversations.registerMessageViewHandler(function(messageView) {
-    //     // This call will be fired when the message is expaned for the first time
-    //     if (messageView.getViewState() == "EXPANDED")
-    //     {
-            
-    //         addSideBarForMessage(messageView.getMessageID(), messageView.getThreadView());
-    //     }
-    //     // This is triggered when a particular message is re-expanded.
-    //     messageView.on('viewStateChange', function(event) {
-    //         console.log(event);
-    //         addSideBarForMessage(event.messageView.getMessageID(), event.messageView.getThreadView());
-    //     })
-    // });
-    
-    sdk.Conversations.registerThreadViewHandler(function(threadView) {
-        var messageViews = threadView.getMessageViewsAll();
-        
-        for (var i=0; i<messageViews.length; i++)
+    sdk.Conversations.registerMessageViewHandler(function(messageView) {
+        // This call will be fired when the message is expaned for the first time
+        if (messageView.getViewState() == "EXPANDED")
         {
-            console.log(messageViews[i].getMessageID());
+            addSideBarForMessage(messageView.getMessageID(), messageView.getThreadView());
+            var message_id = event.messageView.getMessageID();
+            var thread_id = event.message_id.getThreadView().getThreadID();
+            $.ajax({
+                url: "https://burnham-x.appspot.com/extension/future/?message_id=" + message_id +  "&thread_id=" + thread_id,
+                type='GET'
+            })
         }
+        // This is triggered when a particular message is re-expanded.
+        messageView.on('viewStateChange', function(event) {
+            console.log(event);
+            addSideBarForMessage(event.messageView.getMessageID(), event.messageView.getThreadView());
+        })
     });
 
+    sdk.Conversations.registerThreadViewHandler(function(threadView) {
+        
+        var url = "https://burnham-x.appspot.com/association/?active=true&thread_id=" + threadView.getThreadID();
+
+        $.ajax({
+            url: url,
+            beforeSend: function (xhr){
+                xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
+            },
+            type: "GET",
+            success: function(data) { //
+                if (data.count >= 1) {
+                    $.ajax({
+                        beforeSend: function (xhr){
+                            xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
+                        },
+                        url: "https://burnham-x.appspot.com/opportunity/" + data.results[0].opportunity.id + "/",
+                        
+                        type: "GET",
+                        success: function(oppData) {
+                            
+                            addAssociatedSideBar(threadView, oppData);
+                        }
+                    });
+                }
+                else
+                {
+                      addNewAssociationSideBar(threadView);                  
+                }
+            }
+        });
+    });
+
+
+    
 });
-
-
-
-
-
-function addSideBarForMessage(messageID, threadView)
-{
-    var url = "https://burnham-x.appspot.com/association/?active=true&message_id=" + messageID;
-
-    $.ajax({
-        url: url,
-        beforeSend: function (xhr){
-            xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
-        },
-        type: "GET",
-        success: function(data) { //
-            if (data.count >= 1) {
-                $.ajax({
-                    beforeSend: function (xhr){
-                        xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
-                    },
-                    url: "https://burnham-x.appspot.com/opportunity/" + data.results[0].opportunity.id + "/",
-                    
-                    type: "GET",
-                    success: function(oppData) {
-                        addAssociatedSideBar(threadView, oppData);
-                    }
-                });
-            }
-            else
-            {
-                  addNewAssociationSideBar(threadView);                  
-            }
-        }
-    });
-
-}
 
 
 function getBurnhamXSearchResults(query, callback)
@@ -194,7 +203,7 @@ function addNewAssociationSideBar(threadView)
     };
     var html = template(context);
     
-    sidebarForThread.get(threadView).innerHTML = html;
+    sidebarForThread.get(threadView).innerHTML = sidebarForThread.get(threadView).innerHTML + html;
 }
 
 
@@ -224,7 +233,7 @@ function addAssociatedSideBar(threadView, oppData) {
     };
 
     var html = template(context);
-    sidebarForThread.get(threadView).innerHTML = html;
+    sidebarForThread.get(threadView).innerHTML = sidebarForThread.get(threadView).innerHTML + html;
 }
 
 function isAssociated(threadID)
