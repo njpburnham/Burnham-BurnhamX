@@ -24,6 +24,45 @@ class OpportunityViewSet(BulkModelViewSet):
       queryset = queryset.filter(name__istartswith=name, users__email=user)
     return queryset
 
+  def create(self, request):
+    name = self.request.data.get("name", None)
+    opp_status = self.request.data.get("status", None)
+    street = self.request.data.get("street", None)
+    city = self.request.data.get("city", None)
+    state = self.request.data.get("state", None)
+    zip_code = self.request.data.get("zip_code", None)
+    siebel_id = self.request.data.get("siebel_id", None)
+
+    opp_exists = Opportunity.objects.filter(siebel_id=siebel_id).exists()
+    if opp_exists:
+      # update
+      opp = Opportunity.objects.filter(siebel_id=siebel_id)[0]
+      opp.name = name
+      opp.status = opp_status
+      opp.street = street
+      opp.city = city
+      opp.state = state
+      opp.zip_code = zip_code
+      opp.siebel_id = siebel_id   
+      request_status = "Updated"
+    else:
+      # create
+      opp = Opportunity()
+      opp.name = name
+      opp.status = opp_status
+      opp.street = street
+      opp.city = city
+      opp.state = state
+      opp.zip_code = zip_code
+      opp.siebel_id = siebel_id
+      request_status = "Created"
+    opp.save()
+
+
+
+    return Response({"status":request_status}, status=status.HTTP_201_CREATED)
+
+
 
 class AssociationViewSet(BulkModelViewSet):
     queryset = Association.objects.all()
@@ -66,7 +105,6 @@ class AssociationViewSet(BulkModelViewSet):
           association = assoc[0]
           association.delete()
           return Response({"status":"Delete association with message id of %s" % message_id}, status=status.HTTP_200_OK)
-
       else:
         association = Association()
         association.email_id = self.request.data.get("email_id", None)
@@ -92,6 +130,22 @@ class UsersViewSet(BulkModelViewSet):
   serializer_class = UsersSerializer
 
 
+  def create(self, request):
+    email = self.request.data.get('email', None)
+    if email:
+      user = Users.objects.filter(email=email)
+      if user:
+        user = user[0]
+        user.email = email
+        user.save()
+        return Response({"status":"updated"}, status=status.HTTP_200_OK)
+      else:
+        user = Users()
+        user.email = email
+        user.save()
+        return Response({"status":"created"}, status=status.HTTP_200_OK)
+
+
 class PermissionsViewSet(BulkModelViewSet):
   queryset = Users.objects.all()
   serializer_class = PermissionsSerializer
@@ -109,17 +163,19 @@ class PermissionsViewSet(BulkModelViewSet):
       user.opportunities.remove(opp)
 
       return Response({"status":"deleted"}, status=status.HTTP_200_OK)
-    else:
-      return Resonse({"status":"error"})
+    
 
     # we're creating objects here
     if user_email and siebel_id:
       #searializer = PermissionsSerializer(data={email=user_email})
       user = Users.objects.get(email=user_email)
       opp = Opportunity.objects.get(siebel_id=siebel_id)
-
-      user.opportunities.add(opp)
-
+      # Check if duplicate first
+      print user.opportunities
+      if user.opportunities.filter(id=opp.id):
+        return Response({"status":"already exists"}, status=status.HTTP_200_OK)
+      else:
+        user.opportunities.add(opp)
       return Response({"status":"created"}, status=status.HTTP_201_CREATED)
     else:
-      return Resonse({"status":"error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+      return Response({"status":"error. Please provide siebelID and email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
