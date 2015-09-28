@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from api.serializers import OpportunitySerializer, AssociationSerializer, UsersSerializer, PermissionsSerializer
 from extension.models import Opportunity, Association, Users
 from rest_framework_bulk import BulkListSerializer, BulkSerializerMixin, ListBulkCreateUpdateDestroyAPIView, BulkModelViewSet
-from google.appengine.api import users
+from google.appengine.api import users, memcache
 from rest_framework.response import Response
 from django.db.models import Q
 from datetime import datetime, date
@@ -17,12 +17,16 @@ class OpportunityViewSet(BulkModelViewSet):
     queryset = Opportunity.objects.all()
     name = self.request.QUERY_PARAMS.get("name", None)
     user = users.get_current_user()
+    limit = self.request.QUERY_PARAMS.get("limit", None)
     if name:
       # case insensitive search
       queryset = queryset.filter(name__istartswith=name)
     if user and name:
       queryset = queryset.filter(name__istartswith=name, users__email=user)
-    return queryset
+    if limit:
+      return queryset[:10]
+    else:
+      return queryset
 
   def create(self, request):
     name = self.request.data.get("name", None)
@@ -75,11 +79,25 @@ class AssociationViewSet(BulkModelViewSet):
       since_date = self.request.QUERY_PARAMS.get("since", None)
       is_active = self.request.QUERY_PARAMS.get("active", None)
       message_id = self.request.QUERY_PARAMS.get('message_id', None)
+      limit = self.request.QUERY_PARAMS.get("limit", None)
       if message_id:
         queryset = queryset.filter(email_id=message_id)
       if thread_id:
-        queryset = queryset.filter(thread_id=thread_id)
-      if thread_id and is_active:
+        data = memcache.get(thread_id)
+        if data is not None:
+          return data[:20]
+        else:
+          data = queryset.filter(thread_id=thread_id)
+          memcache.add(thread_id, data, 60)
+          return data[:20]
+      if thread_id and is_active:        
+        data = memcache.get(thread_id)
+        if data is not None:
+          return data
+        else:
+          data = self.query_for_data()
+          memcache.add(thread_id, data, 60)
+          return data
         if is_active == "true":
           queryset = queryset.filter(thread_id=thread_id, is_active=True)
         else:
@@ -90,7 +108,10 @@ class AssociationViewSet(BulkModelViewSet):
       if search:
         queryset = queryset.filter(Q(opportunity__siebel_id=search) | Q(opportunity__name__istartswith=search))
 
-      return queryset
+      if limit:
+        return queryset[:limit]
+      else:
+        return queryset
 
 
     def create(self, request):

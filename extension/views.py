@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.core.context_processors import csrf
-from google.appengine.api import users
+from google.appengine.api import users, memcache
 from google.appengine.api import taskqueue
 from oauth2client.client import SignedJwtAssertionCredentials
 from apiclient.discovery import build

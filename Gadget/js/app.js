@@ -120,7 +120,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             var thread_id = event.message_id.getThreadView().getThreadID();
             $.ajax({
                 url: "https://burnham-x.appspot.com/extension/future/?message_id=" + message_id +  "&thread_id=" + thread_id,
-                type='GET'
+                type:'GET'
             })
         }
         // This is triggered when a particular message is re-expanded.

@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include, url
 from rest_framework import routers
 from rest_framework_bulk.routes import BulkRouter
 from api import views as api_views
+from django.conf import settings
+
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -33,3 +35,9 @@ urlpatterns = patterns('',
     url(r'^extension', include('extension.urls')),    
 
 )
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += patterns('',
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    )
