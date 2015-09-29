@@ -1,10 +1,10 @@
 # Django settings for burnhamx project.
 import os
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 # CAUTION - I've noticed that enabling the debug toolbar throws a csrf token error after posting a form
-SHOW_DJANGO_DEBUG_TOOLBAR = True
+SHOW_DJANGO_DEBUG_TOOLBAR = False
 
 
 ADMINS = (
