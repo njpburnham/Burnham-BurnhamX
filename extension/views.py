@@ -32,12 +32,15 @@ def associate(request, thread_id, message_id):
   if request.method == "GET":
     variables = {}
     # The association must not only be related to the thread, but also active
-    curr_assoc = Association.objects.filter(thread_id=thread_id, is_active=True)
-    if curr_assoc.exists():
-      variables['association'] = curr_assoc[0]
+    if memcache.get("assosc_" + thread_id):
+      # if curr_assoc.exists():
+      #   variables['association'] = curr_assoc[0]
+      #   return render_to_response("extension/already_associated.html", variables, context_instance=RequestContext(request))
       return render_to_response("extension/already_associated.html", variables, context_instance=RequestContext(request))
-    variables['user'] = users.get_current_user()
-    return render_to_response("extension/associate.html", variables, context_instance=RequestContext(request))
+    else:
+      curr_assoc = Association.objects.filter(thread_id=thread_id, is_active=True)[:1]
+      variables['user'] = users.get_current_user()
+      return render(request, "extension/associate.html", variables)
   else:
     variables = {}
     curr_opp = Opportunity.objects.get(pk=request.POST['opp'])
@@ -50,6 +53,7 @@ def associate(request, thread_id, message_id):
     association.opportunity = curr_opp
     association.created_user = users.get_current_user()
     association.save()
+    memcache.add("assosc_" + thread_id, "a")
     taskqueue.add(url='/extension/pastAssociation/', params={"thread_id": thread_id, "user": users.get_current_user()})
     
     return redirect("/extension/thanks")

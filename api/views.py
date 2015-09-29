@@ -125,6 +125,7 @@ class AssociationViewSet(BulkModelViewSet):
         else:
           association = assoc[0]
           association.delete()
+          memcache.delete("assosc_" + thread_id)
           return Response({"status":"Delete association with message id of %s" % message_id}, status=status.HTTP_200_OK)
       else:
         association = Association()
@@ -138,6 +139,9 @@ class AssociationViewSet(BulkModelViewSet):
         association.created_user = self.request.data.get("created_user", None)
         association.is_active = True
         association.save()
+        memcache.add("assosc_" + association.thread_id, "a")
+
+
 
         return Response({"status":"Created"}, status=status.HTTP_201_CREATED)
 
