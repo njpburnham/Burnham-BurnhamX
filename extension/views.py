@@ -31,11 +31,9 @@ def associate(request, thread_id, message_id):
 
   if request.method == "GET":
     variables = {}
-    # The association must not only be related to the thread, but also active
-    if memcache.get("assosc_" + thread_id):
-      # if curr_assoc.exists():
-      #   variables['association'] = curr_assoc[0]
-      #   return render_to_response("extension/already_associated.html", variables, context_instance=RequestContext(request))
+    curr_assoc = Association.objects.filter(thread_id=thread_id, is_active=True)
+    if curr_assoc:
+      variables['association'] = curr_assoc[0]
       return render_to_response("extension/already_associated.html", variables, context_instance=RequestContext(request))
     else:
       curr_assoc = Association.objects.filter(thread_id=thread_id, is_active=True)[:1]
@@ -192,6 +190,7 @@ def GetThread(service, user_id, thread_id):
     return thread
   except errors.HttpError, error:
     print 'An error occurred: %s' % error
+    return False
 
 
 

@@ -173,6 +173,7 @@ INSTALLED_APPS = (
     "extension",
     "rest_framework",
     "rest_framework_swagger",
+    "rest_framework_extensions",
     "rest_framework.authtoken",
     "rest_framework_bulk",
     "corsheaders",
@@ -205,6 +206,11 @@ if SHOW_DJANGO_DEBUG_TOOLBAR:
         "38.106.159.84", # Alex New Home
     )
 
+CACHES = {
+    'default': {
+        'BACKEND': 'burnhamx.backends.GaeMemcachedCache',
+    }
+}
 
 
 # A sample logging configuration. The only tangible logging

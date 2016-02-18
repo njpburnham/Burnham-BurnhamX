@@ -10,7 +10,7 @@ class Opportunity(models.Model):
   street = models.CharField(max_length=100)
   city = models.CharField(max_length=100)
   state = models.CharField(max_length=20)
-  zip_code = models.CharField(max_length=12)
+  zip_code = models.CharField(max_length=12, null=True, blank=True)
   siebel_id = models.CharField(max_length=100)
   create_date = models.DateTimeField('date created', auto_now_add=True)
   modified_date = models.DateTimeField('date modified', auto_now=True)

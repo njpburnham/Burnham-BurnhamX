@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from django.db.models import Q
 from datetime import datetime, date
 from dateutil import parser
-
+from django.core.cache import cache
+import logging
 
 class OpportunityViewSet(BulkModelViewSet):
   queryset = Opportunity.objects.all()
@@ -71,7 +72,7 @@ class OpportunityViewSet(BulkModelViewSet):
 class AssociationViewSet(BulkModelViewSet):
     queryset = Association.objects.all()
     serializer_class = AssociationSerializer
-
+    
     def get_queryset(self):
       queryset = Association.objects.all()
       thread_id = self.request.QUERY_PARAMS.get("thread_id", None)
@@ -80,34 +81,40 @@ class AssociationViewSet(BulkModelViewSet):
       is_active = self.request.QUERY_PARAMS.get("active", None)
       message_id = self.request.QUERY_PARAMS.get('message_id', None)
       limit = self.request.QUERY_PARAMS.get("limit", None)
+      # if not message_id and not thread_id:
+      #   return Association.objects.none()
+      
       if message_id:
         queryset = queryset.filter(email_id=message_id)
       if thread_id:
-        data = memcache.get(thread_id)
-        if data is not None:
-          return data[:20]
-        else:
-          data = queryset.filter(thread_id=thread_id)
-          memcache.add(thread_id, data, 60)
-          return data[:20]
-      if thread_id and is_active:        
-        data = memcache.get(thread_id)
-        if data is not None:
+        data = cache.get("assoc_" + thread_id)
+        if data:
+          logging.info("cache")
           return data
         else:
-          data = self.query_for_data()
-          memcache.add(thread_id, data, 60)
+          queryset = queryset.filter(thread_id=thread_id)
+          logging.info("no cache")
+          cache.set("assoc_" + thread_id, queryset)
+          return queryset
+      if thread_id and is_active:
+        data = cache.get("active" + thread_id)
+        if data:
+          logging.info("cache")
           return data
-        if is_active == "true":
-          queryset = queryset.filter(thread_id=thread_id, is_active=True)
         else:
-          queryset = queryset.filter(thread_id=thread_id, is_active=False)
+          if is_active == "true":
+            queryset = queryset.filter(thread_id=thread_id, is_active=True)
+          else:
+            queryset = queryset.filter(thread_id=thread_id, is_active=False)
+          cache.set("active" + thread_id, queryset)
+
       if since_date:
         since = parser.parse(since_date)
+        logging.info(since)
         queryset = queryset.filter(create_date__gt=since)
       if search:
         queryset = queryset.filter(Q(opportunity__siebel_id=search) | Q(opportunity__name__istartswith=search))
-
+      
       if limit:
         return queryset[:limit]
       else:
@@ -193,14 +200,39 @@ class PermissionsViewSet(BulkModelViewSet):
     # we're creating objects here
     if user_email and siebel_id:
       #searializer = PermissionsSerializer(data={email=user_email})
-      user = Users.objects.get(email=user_email)
-      opp = Opportunity.objects.get(siebel_id=siebel_id)
-      # Check if duplicate first
-      print user.opportunities
-      if user.opportunities.filter(id=opp.id):
-        return Response({"status":"already exists"}, status=status.HTTP_200_OK)
+      if "burnham" in user_email:
+        user = Users.objects.get(email=user_email)
+        opp = Opportunity.objects.get(siebel_id=siebel_id)
+        # Check if duplicate first
+        if user.opportunities.filter(id=opp.id):
+          return Response({"status":"already exists"}, status=status.HTTP_200_OK)
+        else:
+          user.opportunities.add(opp)
+        return Response({"status":"created"}, status=status.HTTP_201_CREATED)
       else:
-        user.opportunities.add(opp)
-      return Response({"status":"created"}, status=status.HTTP_201_CREATED)
+        return Response({"status":"error. Please provide a burnham email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
       return Response({"status":"error. Please provide siebelID and email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

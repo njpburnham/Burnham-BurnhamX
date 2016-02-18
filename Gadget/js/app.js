@@ -1,10 +1,32 @@
 var sidebarForThread = new WeakMap(); //A Map is an arbitrary value for the value
 var addedSideBars = new WeakMap();
-var cache = {}
+var cache = {};
+var thread_cache = {};
 var sidebarTemplatePromise = null;
 var DOTURL = "https://burnham-x.appspot.com/static/images/orangedot-1.png"
 var LOGOURL = "https://burnham-x.appspot.com/static/images/BurnhamXLogo.png"
 var LARGELOGO = "https://burnham-x.appspot.com/static/images/BurXLarge.png"
+
+var queuedThreadRowViews = {};
+var queueBatchRequest = _.throttle(function() {
+  var requestThreadRowViews = queuedThreadRowViews;
+  queuedThreadRowViews = {};
+   $.ajax({
+        url: url,
+        beforeSend: function (xhr){
+            xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
+        },
+        type: "GET",
+        success: function(data) {
+            if (data.count >= 1) {
+                addImageToThread(requestThreadRowViews, data.results[0].opportunity.name)
+                cache[curr_id] = data.results[0].opportunity.name
+            }
+        }
+    });
+   }, 20, {leading:false});
+
+
 
 InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
     // LIST VIEW
@@ -16,25 +38,21 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
 
         if (curr_id in cache)
         {
-            addImageToThread(threadRowView, cache[curr_id])
+            addImageToThread(threadRowView, cache[curr_id]);
         }
         else
         {
-            $.ajax({
-                url: url,
-                beforeSend: function (xhr){
-                    xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
-                },
-                type: "GET",
-                success: function(data) {
-                    if (data.count >= 1) {
-                        addImageToThread(threadRowView, data.results[0].opportunity.name)
-                        cache[curr_id] = data.results[0].opportunity.name
-                    }
-                }
-            });
+         queuedThreadRowViews[id] = threadRowView;
+         queueBatchRequest();
         }
     });
+
+    
+
+
+
+
+
 
     sdk.Toolbars.registerToolbarButtonForList({
         title:"ASSOCIATE",
@@ -86,8 +104,14 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
     });
 
     sdk.Conversations.registerThreadViewHandler(function(threadView) {
-        
+        var curr_id = threadView.getThreadID();
         var url = "https://burnham-x.appspot.com/association/?active=true&thread_id=" + threadView.getThreadID();
+
+        if (curr_id in thread_cache)
+        {
+            addAssociatedSideBar(threadView, thread_cache[curr_id]);
+        }
+        else{
 
         $.ajax({
             url: url,
@@ -104,9 +128,9 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
                         url: "https://burnham-x.appspot.com/opportunity/" + data.results[0].opportunity.id + "/",
                         
                         type: "GET",
-                        success: function(oppData) {
-                            
+                        success: function(oppData) {                            
                             addAssociatedSideBar(threadView, oppData);
+                            thread_cache[curr_id] = oppData;
                         }
                     });
                 }
@@ -116,6 +140,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
                 }
             }
         });
+        }
     });
 
 
