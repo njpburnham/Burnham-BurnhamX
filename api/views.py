@@ -189,26 +189,32 @@ class PermissionsViewSet(BulkModelViewSet):
     
     # We're deleting objects here
     if delete:
-      user = Users.objects.get(email=user_email)
-      opp = Opportunity.objects.get(siebel_id=siebel_id)
+      user = Users.objects.filter(email=user_email)
+      if user:
+        user = user[0]
+        opp = Opportunity.objects.get(siebel_id=siebel_id)
 
-      user.opportunities.remove(opp)
+        user.opportunities.remove(opp)
 
-      return Response({"status":"deleted"}, status=status.HTTP_200_OK)
+        return Response({"status":"deleted"}, status=status.HTTP_200_OK)
     
 
     # we're creating objects here
     if user_email and siebel_id:
       #searializer = PermissionsSerializer(data={email=user_email})
       if "burnham" in user_email:
-        user = Users.objects.get(email=user_email)
-        opp = Opportunity.objects.get(siebel_id=siebel_id)
-        # Check if duplicate first
-        if user.opportunities.filter(id=opp.id):
-          return Response({"status":"already exists"}, status=status.HTTP_200_OK)
+        user = Users.objects.filter(email=user_email)
+        if user:
+          user = user[0]
+          opp = Opportunity.objects.get(siebel_id=siebel_id)
+          # Check if duplicate first
+          if user.opportunities.filter(id=opp.id):
+            return Response({"status":"already exists"}, status=status.HTTP_200_OK)
+          else:
+            user.opportunities.add(opp)
+            return Response({"status":"created"}, status=status.HTTP_201_CREATED)
         else:
-          user.opportunities.add(opp)
-        return Response({"status":"created"}, status=status.HTTP_201_CREATED)
+          return Response({"status":"error. User does not exist"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)            
       else:
         return Response({"status":"error. Please provide a burnham email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
