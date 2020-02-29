@@ -198,8 +198,6 @@ class PermissionsViewSet(BulkModelViewSet):
 
         return Response({"status":"deleted"}, status=status.HTTP_200_OK)
     
-
-    # we're creating objects here
     if user_email and siebel_id:
       #searializer = PermissionsSerializer(data={email=user_email})
       if "burnham" in user_email:
@@ -218,27 +216,6 @@ class PermissionsViewSet(BulkModelViewSet):
       else:
         return Response({"status":"error. Please provide a burnham email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
-      return Response({"status":"error. Please provide siebelID and email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      return Response({"status":"error. Please provide siebelID and email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
