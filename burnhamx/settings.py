@@ -11,7 +11,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
-    host = '/cloudsql/burnham-x:burnhamx-dev'
+    host = '/cloudsql/burnham-x:us-central1:burnhamx-dev'
     # Running on production App Engine, so use a Google Cloud SQL database.
     DATABASES = {
         'default': {
@@ -111,7 +111,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    
+
 )
 
 # ONLY ALLOW GOOGLE TO MAKE REQUESTS TO THE API
