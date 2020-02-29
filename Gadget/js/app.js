@@ -1,59 +1,58 @@
 var sidebarForThread = new WeakMap(); //A Map is an arbitrary value for the value
+var addedSideBars = new WeakMap();
+var cache = {};
+var thread_cache = {};
 var sidebarTemplatePromise = null;
 var DOTURL = "https://burnham-x.appspot.com/static/images/orangedot-1.png"
 var LOGOURL = "https://burnham-x.appspot.com/static/images/BurnhamXLogo.png"
-var LARGELOGO = "http://burnham-x.appspot.com/static/images/BurXLarge.png"
+var LARGELOGO = "https://burnham-x.appspot.com/static/images/BurXLarge.png"
+
+var queuedThreadRowViews = {};
+var queueBatchRequest = _.throttle(function() {
+  var requestThreadRowViews = queuedThreadRowViews;
+  queuedThreadRowViews = {};
+   $.ajax({
+        url: url,
+        beforeSend: function (xhr){
+            xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
+        },
+        type: "GET",
+        success: function(data) {
+            if (data.count >= 1) {
+                addImageToThread(requestThreadRowViews, data.results[0].opportunity.name)
+                cache[curr_id] = data.results[0].opportunity.name
+            }
+        }
+    });
+   }, 20, {leading:false});
+
+
 
 InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
-
-    // sdk.Router.handleListRoute(sdk.Router.NativeListRouteIDs.SEARCH , function(searchView) 
-    // {
-    //   var section = searchView.addSection({
-    //     title: "Results from BurnhamX",
-    //     subtitle: "search results pertaining specifically to BurnhamX"
-    //   });
-      
-    //   searchView.addRows({
-    //     title:"Test",
-    //     body: "TEST2",
-    //     shortDetailText: "MEMEMEME",
-    //     isRead: "true",
-    //     labels: [],
-    //   });
-    
-    // });
-
-
-    // the SDK has been loaded, now do something with it!
-    sdk.Compose.registerComposeViewHandler(function(composeView) {
-
-        // a compose view has come into existence, do something with it!
-        composeView.addButton({
-            title: "Burnham w/InboxSDK",
-            iconUrl: LOGOURL,
-            onClick: function(event) {
-                event.composeView.insertTextIntoBodyAtCursor('Hello Burnham!');
-            },
-        }); 
-    });
-
-
     // LIST VIEW
     sdk.Lists.registerThreadRowViewHandler(function(threadRowView) {
         var curr_id = threadRowView.getThreadID();
 
         // We need to replace this with an API calls
         var url = "https://burnham-x.appspot.com/association/?thread_id=" + curr_id;
-        $.ajax({
-            url: url,
-            type: "GET",
-            success: function(data) {
-                if (data.count >= 1) {
-                    addImageToThread(threadRowView, data.results[0].opportunity.name)
-                }
-            }
-        });
+
+        if (curr_id in cache)
+        {
+            addImageToThread(threadRowView, cache[curr_id]);
+        }
+        else
+        {
+         queuedThreadRowViews[id] = threadRowView;
+         queueBatchRequest();
+        }
     });
+
+    
+
+
+
+
+
 
     sdk.Toolbars.registerToolbarButtonForList({
         title:"ASSOCIATE",
@@ -67,7 +66,7 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
                 selected_ids += selected_emails[i].getThreadID() + "_";
             }
             var send_to_api = selected_ids.substr(0, selected_ids.length-1);
-            console.log(send_to_api);
+            
             var myWindow = window.open("https://burnham-x.appspot.com/extension/bulkassociate/"+ send_to_api +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
             },
     });
@@ -80,29 +79,58 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
             section: "METADATA_STATE",
             onClick: function (event) {
                 thread_id = event.threadView.getThreadID();
-                var myWindow = window.open("https://burnham-x.appspot.com/extension/associate/"+ thread_id +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
+                message_id = event.threadView.getMessageViews()[0].getMessageID()
+                var myWindow = window.open("https://burnham-x.appspot.com/extension/associate/"+ thread_id +"/" + message_id +"/", "Associate", "left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no");
             },
         });
 
     sdk.Conversations.registerMessageViewHandler(function(messageView) {
+        // This call will be fired when the message is expaned for the first time
+        if (messageView.getViewState() == "EXPANDED")
+        {
+            //addSideBarForMessage(messageView.getMessageID(), messageView.getThreadView());
+            var message_id = messageView.getMessageID();
+            var thread_id = messageView.getThreadView().getThreadID();
+            $.ajax({
+                url: "https://burnham-x.appspot.com/extension/future/?message_id=" + message_id +  "&thread_id=" + thread_id,
+                type:'GET'
+            })
+        }
+        // This is triggered when a particular message is re-expanded.
+        messageView.on('viewStateChange', function(event) {
+            console.log(event);
+            //addSideBarForMessage(event.messageView.getMessageID(), event.messageView.getThreadView());
+        })
+    });
 
-        var threadView = messageView.getThreadView();
-        //console.log(threadView);
+    sdk.Conversations.registerThreadViewHandler(function(threadView) {
+        var curr_id = threadView.getThreadID();
+        var url = "https://burnham-x.appspot.com/association/?active=true&thread_id=" + threadView.getThreadID();
 
-        var url = "https://burnham-x.appspot.com/association/?thread_id=" + threadView.getThreadID();
+        if (curr_id in thread_cache)
+        {
+            addAssociatedSideBar(threadView, thread_cache[curr_id]);
+        }
+        else{
+
         $.ajax({
             url: url,
+            beforeSend: function (xhr){
+                xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
+            },
             type: "GET",
             success: function(data) { //
-                console.log(data);
                 if (data.count >= 1) {
                     $.ajax({
-                        
+                        beforeSend: function (xhr){
+                            xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
+                        },
                         url: "https://burnham-x.appspot.com/opportunity/" + data.results[0].opportunity.id + "/",
+                        
                         type: "GET",
-                        success: function(oppData) {
-                            console.log(oppData);
+                        success: function(oppData) {                            
                             addAssociatedSideBar(threadView, oppData);
+                            thread_cache[curr_id] = oppData;
                         }
                     });
                 }
@@ -112,10 +140,26 @@ InboxSDK.load('1', 'sdk_burnhamx_91375e9559').then(function(sdk) {
                 }
             }
         });
-
-
+        }
     });
+
+
+    
 });
+
+
+function getBurnhamXSearchResults(query, callback)
+{
+    var url = "https://burnham-x.appspot.com/association/?search=" + query;
+    $.ajax({
+            url: url,
+            beforeSend: function (xhr){
+                xhr.setRequestHeader("Authorization", "Token d0de5a3282b98955e158911efef5a8c16ec81607");
+            },
+            type: "GET",
+            success: callback
+        });
+}
 
 
 function addNewAssociationSideBar(threadView)
@@ -123,16 +167,22 @@ function addNewAssociationSideBar(threadView)
     if (!sidebarForThread.has(threadView)) {
         sidebarForThread.set(threadView, document.createElement('div'));
 
-        threadView.addSidebarContentPanel({
+        var sideBar = threadView.addSidebarContentPanel({
             el: sidebarForThread.get(threadView),
             title: "BurnhamX",
             iconUrl: LARGELOGO
         });
+        addedSideBars.set(threadView, sideBar);
     }
-    var source = '<div class="column"><h3>Not Associated</h3>Click the <img src="' +  LOGOURL +'"> icon on the navigation bar to associate</div>';
+
+    // This is ugly!
+    var source = '<div class="column"><h3>No Association Found</h3>Click below to associate <input type="image" src="' + LOGOURL + '" onclick="window.open(\'{{url}}\', \'Associate\', \'left=2000, top=100, width=400, height=400, titlebar=no ,menubar=no\')"></div>';
     var template = Handlebars.compile(source);
-    var context = {};
+    var context = {
+        url: "https://burnham-x.appspot.com/extension/associate/"+ threadView.getThreadID() +"/" + threadView.getMessageViews()[0].getMessageID() + "/"
+    };
     var html = template(context);
+    
     sidebarForThread.get(threadView).innerHTML = sidebarForThread.get(threadView).innerHTML + html;
 }
 
@@ -155,9 +205,7 @@ function addAssociatedSideBar(threadView, oppData) {
             iconUrl: LARGELOGO
         });
     }
-
-
-    var source = '<div class="column"><h4>Association Found</h4>Customer: {{name}} <br />Address: {{address}}<br /></div>';
+    var source = '<div class="column"><h4>Association Found</h4><b>OPTY:</b> {{name}} <br /><br /><b>Address:</b> {{address}}<br /></div>';
     var template = Handlebars.compile(source);
     var context = {
         name: oppData.name,

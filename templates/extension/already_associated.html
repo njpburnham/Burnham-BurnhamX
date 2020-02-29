@@ -14,6 +14,18 @@
 <div class='container'>
   <h3>Already Associated!</h3>
     That thread is already associated to an opportunity. <br />
-    This window will close in 5 seconds
+
+    <div class='row'>
+      <form action='/extension/unassociate/' method='post'>
+        {% csrf_token %}
+        <input type='hidden' value='{{ association.id }}' name='association'>
+        <button class='btn btn-warning btn-lg'>Unassociate</button> <br />
+        <small>Clicking the Unassociate button will remove the email from the OPTY</small>
+      </form>
+    </div>
 </div>
+
+
+<div>
+
 {% endblock %}

@@ -1,8 +1,11 @@
 # Django settings for burnhamx project.
 import os
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
+# CAUTION - I've noticed that enabling the debug toolbar throws a csrf token error after posting a form
+SHOW_DJANGO_DEBUG_TOOLBAR = False
+
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -130,14 +133,14 @@ TEMPLATE_DIRS = (
 )
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated'
-    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated'
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100,
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework.authentication.TokenAuthentication',
-    # )
+    'PAGE_SIZE': 50,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 
 }
@@ -148,7 +151,7 @@ SWAGGER_SETTINGS = {
     'api_path': '/',
     'enabled_methods': ['get','post'],
     'api_key': '',
-    'is_authenticated': False,
+    'is_authenticated': True,
     'is_superuser': False,
     'permission_denied_handler': None,
     'doc_expansion': 'none',
@@ -170,10 +173,45 @@ INSTALLED_APPS = (
     "extension",
     "rest_framework",
     "rest_framework_swagger",
+    "rest_framework_extensions",
     "rest_framework.authtoken",
     "rest_framework_bulk",
     "corsheaders",
 )
+if SHOW_DJANGO_DEBUG_TOOLBAR:
+    INSTALLED_APPS += ( 'debug_toolbar',)
+    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+    DEBUG_TOOLBAR_PANELS = [
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.headers.HeadersPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.cache.CachePanel',
+        'debug_toolbar.panels.signals.SignalsPanel',
+        'debug_toolbar.panels.logging.LoggingPanel',
+        'debug_toolbar.panels.redirects.RedirectsPanel',
+    ]
+    SHOW_TOOLBAR_CALLBACK = True
+
+    INTERNAL_IPS = (
+        '127.0.0.1',
+        '::1',
+        '66.199.69.91', # Jordan Home
+        '12.250.147.146', # CB Office
+        '162.224.22.102', # Alex Home
+        "38.106.159.84", # Alex New Home
+    )
+
+CACHES = {
+    'default': {
+        'BACKEND': 'burnhamx.backends.GaeMemcachedCache',
+    }
+}
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
