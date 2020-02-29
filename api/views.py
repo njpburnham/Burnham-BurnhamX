@@ -9,7 +9,7 @@ from rest_framework.response import Response
 class OpportunityViewSet(BulkModelViewSet):
     queryset = Opportunity.objects.all()
     serializer_class = OpportunitySerializer
-    
+
     def get_queryset(self):
       queryset = Opportunity.objects.all()
       name = self.request.QUERY_PARAMS.get("name", None)
@@ -48,7 +48,7 @@ class PermissionsViewSet(BulkModelViewSet):
   def create(self, request):
     user_email  = self.request.data.get("email", None)
     siebel_id = self.request.data.get("siebelID", None)
-    
+
     if user_email and siebel_id:
       #searializer = PermissionsSerializer(data={email=user_email})
       user = Users.objects.get(email=user_email)
@@ -58,4 +58,4 @@ class PermissionsViewSet(BulkModelViewSet):
 
       return Response({"status":"created"}, status=status.HTTP_201_CREATED)
     else:
-      return Resonse()
+      return Response()
