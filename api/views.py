@@ -13,7 +13,7 @@ import logging
 class OpportunityViewSet(BulkModelViewSet):
   queryset = Opportunity.objects.all()
   serializer_class = OpportunitySerializer
-  
+
   def get_queryset(self):
     queryset = Opportunity.objects.all()
     name = self.request.QUERY_PARAMS.get("name", None)
@@ -48,7 +48,7 @@ class OpportunityViewSet(BulkModelViewSet):
       opp.city = city
       opp.state = state
       opp.zip_code = zip_code
-      opp.siebel_id = siebel_id   
+      opp.siebel_id = siebel_id
       request_status = "Updated"
     else:
       # create
@@ -72,7 +72,7 @@ class OpportunityViewSet(BulkModelViewSet):
 class AssociationViewSet(BulkModelViewSet):
     queryset = Association.objects.all()
     serializer_class = AssociationSerializer
-    
+
     def get_queryset(self):
       queryset = Association.objects.all()
       thread_id = self.request.QUERY_PARAMS.get("thread_id", None)
@@ -83,7 +83,7 @@ class AssociationViewSet(BulkModelViewSet):
       limit = self.request.QUERY_PARAMS.get("limit", None)
       # if not message_id and not thread_id:
       #   return Association.objects.none()
-      
+
       if message_id:
         queryset = queryset.filter(email_id=message_id)
       if thread_id:
@@ -114,7 +114,7 @@ class AssociationViewSet(BulkModelViewSet):
         queryset = queryset.filter(create_date__gt=since)
       if search:
         queryset = queryset.filter(Q(opportunity__siebel_id=search) | Q(opportunity__name__istartswith=search))
-      
+
       if limit:
         return queryset[:limit]
       else:
@@ -153,9 +153,9 @@ class AssociationViewSet(BulkModelViewSet):
         return Response({"status":"Created"}, status=status.HTTP_201_CREATED)
 
 
-        
-      
-      
+
+
+
 
 class UsersViewSet(BulkModelViewSet):
   queryset = Users.objects.all()
@@ -186,7 +186,7 @@ class PermissionsViewSet(BulkModelViewSet):
     user_email  = self.request.data.get("email", None)
     siebel_id = self.request.data.get("siebelID", None)
     delete = self.request.data.get("delete", None)
-    
+
     # We're deleting objects here
     if delete:
       user = Users.objects.filter(email=user_email)
@@ -197,7 +197,7 @@ class PermissionsViewSet(BulkModelViewSet):
         user.opportunities.remove(opp)
 
         return Response({"status":"deleted"}, status=status.HTTP_200_OK)
-    
+
     if user_email and siebel_id:
       #searializer = PermissionsSerializer(data={email=user_email})
       if "burnham" in user_email:
@@ -212,10 +212,8 @@ class PermissionsViewSet(BulkModelViewSet):
             user.opportunities.add(opp)
             return Response({"status":"created"}, status=status.HTTP_201_CREATED)
         else:
-          return Response({"status":"error. User does not exist"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)            
+          return Response({"status":"error. User does not exist"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
       else:
         return Response({"status":"error. Please provide a burnham email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
-      return Response({"status":"error. Please provide siebelID and email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-
-
+      return Response({"status":"error. Please provide siebelID and email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
