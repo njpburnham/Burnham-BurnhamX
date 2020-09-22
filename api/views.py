@@ -132,7 +132,7 @@ class AssociationViewSet(BulkModelViewSet):
         else:
           association = assoc[0]
           association.delete()
-          memcache.delete("assosc_" + thread_id)
+          memcache.delete("assosc_" + association.thread_id)
           return Response({"status":"Delete association with message id of %s" % message_id}, status=status.HTTP_200_OK)
       else:
         association = Association()
